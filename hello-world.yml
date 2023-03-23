@@ -31,7 +31,15 @@ jobs:
           # outputs:
           #   - name: the-artifact
           run:
-            path: ./repo/task.sh
+            path: sh
+            args:
+              - -cx
+              - |
+                ls -l .
+                ls -l ./repo
+                ./repo/task.sh
+          # run:
+            # path: ./repo/task.sh
             
       # Add a second task that reads the contents of the-artifact/message
       # - task: read-the-artifact
