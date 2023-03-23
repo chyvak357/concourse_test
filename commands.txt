@@ -1,0 +1,4 @@
+fly -t tutorial set-pipeline -p hello-world -c hello-world.yml --var "local-resource-type=$(cat local-resource-type.yml)"
+
+
+fly -t tutorial set-pipeline -p hello-world -c hello-world.yml  

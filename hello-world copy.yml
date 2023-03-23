@@ -1,0 +1,56 @@
+display:
+  background_image: https://wallpapercave.com/uwp/uwp558581.gif
+
+resources:
+  - name: every-five-minutes
+    type: time
+    source:
+      interval: 5m
+
+  - name: git-repo
+    type: git
+    source:
+      uri: https://github.com/seperman/deepdiff.git
+
+jobs:
+  - name: hello-world-job
+    build_log_retention:
+      builds: 10
+    plan:
+      - get: every-five-minutes
+        trigger: true
+      - get: git-repo
+      - task: hello-world-task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: python
+              tag: "3.11"
+          inputs:
+            - name: git-repo
+          outputs:
+            - name: the-artifact
+          run:
+            path: sh
+            args:
+              - -cx
+              - |
+                ls -l git-repo
+                pip install -r ./git-repo/requirements.txt
+                ./git-repo/run_tests.sh
+                echo "hello from another step!" > the-artifact/message
+
+      # Add a second task that reads the contents of the-artifact/message
+      - task: read-the-artifact
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: busybox
+          # To receive "the-artifact", specify it as an input
+          inputs:
+            - name: the-artifact
+          run: cat the-artifact/message
