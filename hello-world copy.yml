@@ -1,25 +1,23 @@
-display:
-  background_image: https://wallpapercave.com/uwp/uwp558581.gif
-
 resources:
+  - name: my-git-repo
+    type: git
+    source:
+      uri: https://github.com/chyvak357/concourse_test.git
+      branch: main
+      # private_key: ((git-private-key))
+
   - name: every-five-minutes
     type: time
     source:
       interval: 5m
 
-  - name: git-repo
-    type: git
-    source:
-      uri: https://github.com/seperman/deepdiff.git
-
 jobs:
   - name: hello-world-job
-    build_log_retention:
-      builds: 10
     plan:
       - get: every-five-minutes
         trigger: true
-      - get: git-repo
+      - get: repo
+        resource: my-git-repo
       - task: hello-world-task
         config:
           platform: linux
@@ -29,7 +27,7 @@ jobs:
               repository: python
               tag: "3.11"
           inputs:
-            - name: git-repo
+            - name: repo
           outputs:
             - name: the-artifact
           run:
@@ -37,11 +35,9 @@ jobs:
             args:
               - -cx
               - |
-                ls -l git-repo
-                pip install -r ./git-repo/requirements.txt
-                ./git-repo/run_tests.sh
+                ls -l .
+                ls -l ./repo
                 echo "hello from another step!" > the-artifact/message
-
       # Add a second task that reads the contents of the-artifact/message
       - task: read-the-artifact
         config:
@@ -53,4 +49,10 @@ jobs:
           # To receive "the-artifact", specify it as an input
           inputs:
             - name: the-artifact
-          run: cat the-artifact/message
+          run:
+            path: sh
+            args:
+              - -cx
+              - |
+                ls -l .
+                cat the-artifact/message
