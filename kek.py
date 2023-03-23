@@ -48,10 +48,10 @@ if __name__ == "__main__":
 
     body = body_template.format("\n".join(data))
 
-    with open("body", "w") as f:
+    with open("email-out/body", "w") as f:
         f.write(body)
 
-    with open("subject", "w") as f:
+    with open("email-out/subject", "w") as f:
         current_date = datetime.now().strftime("%d.%m.%Y")
         f.write(f"Obtaining AD-HOC references for {current_date}")
 
